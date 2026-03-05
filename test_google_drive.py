@@ -4,10 +4,13 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
-PARENT_FOLDER_ID = "1dok8ZrC9udm5rHiOSKt2_c7bpTgnmI_U"
+PARENT_FOLDER_ID = os.getenv("PARENT_FOLDER_ID")
 
 def get_credentials():
     creds = None

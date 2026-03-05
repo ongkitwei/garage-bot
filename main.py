@@ -2,13 +2,10 @@ import logging
 import asyncio 
 import os
 import os.path
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+
 from commands.introduction import introduction_cmd
 from commands.event import event_cmd
 from commands.deadlines import deadlines_cmd
-from commands.upload_file import upload_file_cmd
 
 from dotenv import load_dotenv  
 from telegram import Update, ReplyKeyboardMarkup
@@ -68,33 +65,33 @@ async def handle_deadline_input(update: Update, context: ContextTypes.DEFAULT_TY
     return ConversationHandler.END
 
 # ================= GOOGLE DRIVE HELPER =================
-def upload_file_to_drive(file_path, file_name):
-    """Uploads a file to the configured Google Drive folder."""
-    try:
-        if not os.path.exists(SERVICE_ACCOUNT_FILE):
-            logging.error(f"❌ Service account file not found: {SERVICE_ACCOUNT_FILE}")
-            return None
+# def upload_file_to_drive(file_path, file_name):
+#     """Uploads a file to the configured Google Drive folder."""
+#     try:
+#         if not os.path.exists(SERVICE_ACCOUNT_FILE):
+#             logging.error(f"❌ Service account file not found: {SERVICE_ACCOUNT_FILE}")
+#             return None
 
-        creds = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/drive']
-        )
-        service = build('drive', 'v3', credentials=creds)
+#         creds = service_account.Credentials.from_service_account_file(
+#             SERVICE_ACCOUNT_FILE, scopes=['https://www.googleapis.com/auth/drive']
+#         )
+#         service = build('drive', 'v3', credentials=creds)
 
-        file_metadata = {
-            'name': file_name,
-            'parents': [GDRIVE_FOLDER_ID]
-        }
-        media = MediaFileUpload(file_path, resumable=True)
+#         file_metadata = {
+#             'name': file_name,
+#             'parents': [GDRIVE_FOLDER_ID]
+#         }
+#         media = MediaFileUpload(file_path, resumable=True)
         
-        file = service.files().create(
-            body=file_metadata, 
-            media_body=media, 
-            fields='id'
-        ).execute()
-        return file.get('id')
-    except Exception as e:
-        logging.error(f"Drive Error: {e}")
-        return None
+#         file = service.files().create(
+#             body=file_metadata, 
+#             media_body=media, 
+#             fields='id'
+#         ).execute()
+#         return file.get('id')
+#     except Exception as e:
+#         logging.error(f"Drive Error: {e}")
+#         return None
 
 # ================= HELPER FUNCTIONS =================
 def save_user(user_id):
