@@ -1,9 +1,10 @@
+import logging
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 from states import ADMIN_IDS
 from commands.introduction import introduction_cmd
 from keyboards import get_main_keyboard, get_upload_keyboard
-from utils import save_user
+from utils import save_user, get_allowed_usernames
 from states import DEADLINE_STATE, UPLOAD_STATE, BROADCAST_STATE
 from commands.event import event_cmd
 
@@ -36,14 +37,27 @@ async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         await update.message.reply_text(response, parse_mode='Markdown')
 
     elif text == "📥 Upload File":
-        sent_message = await update.message.reply_text(
-            "📥 **Upload Menu**\n\n"
-            "Please select the category for your upload:",
-            reply_markup=get_upload_keyboard(), 
-            parse_mode='HTML'
-        )
-        context.user_data['menu_message_id'] = sent_message.message_id
-        return UPLOAD_STATE
+        user = update.effective_user
+        current_username = user.username.lower() if user.username else None
+        allowed_list = get_allowed_usernames()
+
+        if current_username not in allowed_list:
+            await update.message.reply_text(
+                "⛔ **Access Denied**\nYour Telegram handle is not on the authorized list.",
+                parse_mode='Markdown',
+                reply_markup=get_main_keyboard()
+            )
+            logging.warning(f"Unauthorized upload attempt by @{current_username}")
+            return ConversationHandler.END
+        else:
+            sent_message = await update.message.reply_text(
+                "📥 **Upload Menu**\n\n"
+                "Please select the category for your upload:",
+                reply_markup=get_upload_keyboard(), 
+                parse_mode='HTML'
+            )
+            context.user_data['menu_message_id'] = sent_message.message_id
+            return UPLOAD_STATE
 
     elif text == "⏰ Set Reminder":
         if user_id in ADMIN_IDS:

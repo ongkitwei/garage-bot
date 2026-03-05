@@ -1,9 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 from states import ADMIN_IDS
-from commands.introduction import introduction_cmd
-from keyboards import get_main_keyboard, get_upload_keyboard
-from utils import save_user
+from keyboards import get_main_keyboard
 from states import USER_DB_FILE
 import os
 
