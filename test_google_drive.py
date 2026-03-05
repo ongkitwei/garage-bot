@@ -12,23 +12,38 @@ load_dotenv()
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 PARENT_FOLDER_ID = os.getenv("PARENT_FOLDER_ID")
 
+import json  # Add this import at the top
+
 def get_credentials():
     creds = None
-    # The file token.json stores the user's access and refresh tokens
-    if os.path.exists('token.json'):
+    
+    # 1. Check if we are on Railway (look for the Environment Variable first)
+    token_json_env = os.getenv("GOOGLE_TOKEN_JSON")
+    
+    if token_json_env:
+        # Load credentials directly from the Railway variable string
+        token_info = json.loads(token_json_env)
+        creds = Credentials.from_authorized_user_info(token_info, SCOPES)
+        
+    # 2. Fallback for Local Development (MacBook)
+    elif os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     
-    # If there are no (valid) credentials available, let the user log in.
+    # 3. Validation and Refresh Logic
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            # This part will only run on your MacBook to generate the token
             flow = InstalledAppFlow.from_client_secrets_file(
                 'client_secrets.json', SCOPES)
             creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+        
+        # 4. Save locally (Only happens on your MacBook)
+        if not token_json_env:
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
+                
     return creds
 
 def upload_file(file_path):
