@@ -1,4 +1,4 @@
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup
 
 def get_upload_keyboard():
     keyboard = [

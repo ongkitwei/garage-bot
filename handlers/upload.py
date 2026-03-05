@@ -5,7 +5,7 @@ from states import ADMIN_IDS
 from commands.introduction import introduction_cmd
 from update_sheets_link import update_sheets_link
 from keyboards import get_main_keyboard, get_upload_keyboard
-from utils import save_user
+from utils import get_allowed_usernames
 from states import DEADLINE_STATE, UPLOAD_STATE, BROADCAST_STATE
 import logging 
 import os
@@ -16,9 +16,20 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 async def receive_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    current_username = user.username.lower() if user.username else None
+    allowed_list = get_allowed_usernames()
+    if current_username not in allowed_list:
+        await update.message.reply_text(
+            "⛔ **Access Denied**\nYour Telegram handle is not on the authorized list.",
+            parse_mode='Markdown',
+            reply_markup=get_main_keyboard()
+        )
+        logging.warning(f"Unauthorized upload attempt by @{current_username}")
+        return ConversationHandler.END
+
     text = update.message.text
     chat_id = update.effective_chat.id
-    user = update.effective_user
     
     teams = ["🔥 builder", "🔥 thunder", "🔥 tim", "🔥 deepsit", "🔥 strikers", "🔥 newentrepreneurs"]
 
