@@ -12,9 +12,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     save_user(user.id)
     await update.message.reply_text(
-        f"Hi {user.first_name}! 👋 Choose what you want to do:",
+        f"Hi Garage members! 👋 Choose what you want to do:",
         reply_markup=get_main_keyboard()
     )
+
+from telegram.ext import ConversationHandler
+
+async def end(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Back to main menu! 👋", 
+        reply_markup=get_main_keyboard()
+    )
+    return ConversationHandler.END
 
 async def handle_menu_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text

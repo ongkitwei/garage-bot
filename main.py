@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import logging
 import os
 
-from handlers.menu import handle_menu_buttons, start
+from handlers.menu import handle_menu_buttons, start, end
 from handlers.deadlines import handle_deadline_input
 from handlers.upload import receive_file, cancel
 from handlers.broadcast import broadcast_message
@@ -53,6 +53,7 @@ if __name__ == '__main__':
         )
     
     application.add_handler(CommandHandler('start', start))
+    application.add_handler(CommandHandler('end', end))
     application.add_handler(upload_handler)
     application.add_handler(broadcast_handler)
     application.add_handler(deadline_handler)
